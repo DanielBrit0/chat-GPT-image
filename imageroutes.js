@@ -1,46 +1,49 @@
 // imageroutes.js
 import express from "express";
-import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-
+import { v4 as uuidv4 } from "uuid";
 import { generateImageVariation } from "./openaiservice.js";
 
-// Necessário para manipular __dirname com ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Setup do multer (upload)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = path.join(__dirname, "uploads");
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath);
-    }
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const name = path.basename(file.originalname, ext);
-    cb(null, `${name}-${Date.now()}${ext}`);
-  },
-});
-
-const upload = multer({ storage });
-
 const router = express.Router();
 
-router.post("/generate-variation", upload.single("image"), async (req, res) => {
+// 🧠 Rota para quando a imagem vem em base64 (usado pelo Google Apps Script)
+router.post("/generate-variation", async (req, res) => {
   try {
-    const prompt = req.body.prompt || null;
-    const imagePath = req.file.path;
-    const result = await generateImageVariation(imagePath, prompt);
+    const { image, prompt } = req.body;
+
+    if (!image) {
+      return res.status(400).json({ error: "Imagem base64 não fornecida." });
+    }
+
+    // Extrai apenas o conteúdo base64 (remove cabeçalho data:image/png;base64,...)
+    const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
+    const buffer = Buffer.from(base64Data, "base64");
+
+    // Salva temporariamente a imagem no servidor
+    const tempDir = path.join(__dirname, "uploads");
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir);
+    }
+
+    const tempFilePath = path.join(tempDir, `${uuidv4()}.png`);
+    fs.writeFileSync(tempFilePath, buffer);
+
+    // Gera variações com OpenAI
+    const result = await generateImageVariation(tempFilePath, prompt);
+
+    // Remove imagem temporária
+    fs.unlinkSync(tempFilePath);
+
     res.json(result);
   } catch (error) {
-    console.error("Erro na rota /generate-variation:", error);
-    res.status(500).json({ error: "Erro ao processar imagem" });
+    console.error("Erro ao gerar variação:", error);
+    res.status(500).json({ error: "Erro ao processar imagem base64." });
   }
 });
 
