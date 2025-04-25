@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
-import { generateImageVariation } from "./openaiService.js";
+import { generateImageVariation } from "./openaiservice.js";
 
 // Necessário para manipular __dirname com ES Modules
 const __filename = fileURLToPath(import.meta.url);
