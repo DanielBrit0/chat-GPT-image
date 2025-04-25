@@ -1,4 +1,4 @@
-// imageRoutes.js
+// imageroutes.js
 import express from "express";
 import multer from "multer";
 import fs from "fs";

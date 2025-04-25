@@ -1,7 +1,7 @@
 // index.js
 import express from 'express';
 import dotenv from 'dotenv';
-import imageRoutes from './imageRoutes.js';
+import imageroutes from './imageroutes.js';
 import path from 'path';
 import cors from 'cors';
 
@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.json());
 
 // Rota para processar upload e variações de imagem
-app.use('/', imageRoutes);
+app.use('/', imageroutes);
 
 // Servidor iniciado
 app.listen(PORT, () => {
