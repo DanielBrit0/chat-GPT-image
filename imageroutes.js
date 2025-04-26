@@ -35,7 +35,7 @@ router.post("/generate-variation", async (req, res) => {
     fs.writeFileSync(tempFilePath, buffer);
 
     // Gera variações com OpenAI
-    const result = await editImage(tempFilePath, prompt);
+    const result = await editImage({ imagePath: tempFilePath, prompt });
 
     // Remove imagem temporária
     fs.unlinkSync(tempFilePath);
