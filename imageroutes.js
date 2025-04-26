@@ -5,7 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { v4 as uuidv4 } from "uuid";
-import { generateImageVariation } from "./openaiservice.js";
+import { editImage } from "./openaiservice.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -35,7 +35,7 @@ router.post("/generate-variation", async (req, res) => {
     fs.writeFileSync(tempFilePath, buffer);
 
     // Gera variações com OpenAI
-    const result = await generateImageVariation(tempFilePath, prompt);
+    const result = await editImage(tempFilePath, prompt);
 
     // Remove imagem temporária
     fs.unlinkSync(tempFilePath);
