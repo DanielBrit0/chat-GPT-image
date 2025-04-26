@@ -7,22 +7,16 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_IMAGE_EDIT_URL = "https://api.openai.com/v1/images/edits";
+const OPENAI_IMAGE_VARIATION_URL = "https://api.openai.com/v1/images/variations";
 
-export async function editImage({ imagePath, maskPath = null, prompt }) {
+export async function generateVariation({ imagePath }) {
   try {
     const formData = new FormData();
     formData.append("image", fs.createReadStream(imagePath));
-    formData.append("prompt", prompt);
-    formData.append("n", "2");
+    formData.append("n", "2"); // número de variações
     formData.append("size", "1024x1024");
 
-    // A máscara é opcional, mas se fornecida deve ser PNG com transparência
-    if (maskPath) {
-      formData.append("mask", fs.createReadStream(maskPath));
-    }
-
-    const response = await axios.post(OPENAI_IMAGE_EDIT_URL, formData, {
+    const response = await axios.post(OPENAI_IMAGE_VARIATION_URL, formData, {
       headers: {
         ...formData.getHeaders(),
         Authorization: `Bearer ${OPENAI_API_KEY}`,
@@ -31,7 +25,7 @@ export async function editImage({ imagePath, maskPath = null, prompt }) {
 
     return response.data;
   } catch (error) {
-    console.error("Erro ao editar imagem:", error.response?.data || error.message);
+    console.error("Erro ao gerar variação da imagem:", error.response?.data || error.message);
     throw error;
   }
 }
