@@ -5,17 +5,17 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { v4 as uuidv4 } from "uuid";
-import { generateVariation } from "./openaiservice.js";
+import { editImage, createVariation } from "./openaiservice.js"; // ⬅️ Importa também o createVariation
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const router = express.Router();
 
-// Rota para quando a imagem vem em base64 (usado pelo Google Apps Script)
+// 🧠 Rota para quando a imagem vem em base64 (usado pelo Google Apps Script)
 router.post("/generate-variation", async (req, res) => {
   try {
-    const { image } = req.body;
+    const { image, prompt } = req.body;
 
     if (!image) {
       return res.status(400).json({ error: "Imagem base64 não fornecida." });
@@ -34,8 +34,15 @@ router.post("/generate-variation", async (req, res) => {
     const tempFilePath = path.join(tempDir, `${uuidv4()}.png`);
     fs.writeFileSync(tempFilePath, buffer);
 
-    // Gera variações com OpenAI
-    const result = await generateVariation({ imagePath: tempFilePath });
+    let result;
+
+    if (prompt && prompt.trim() !== "") {
+      // Se houver prompt, edita a imagem com o prompt
+      result = await editImage({ imagePath: tempFilePath, prompt });
+    } else {
+      // Se NÃO houver prompt, gera apenas variações da imagem
+      result = await createVariation({ imagePath: tempFilePath });
+    }
 
     // Remove imagem temporária
     fs.unlinkSync(tempFilePath);

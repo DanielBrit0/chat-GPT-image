@@ -9,11 +9,11 @@ dotenv.config();
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_IMAGE_VARIATION_URL = "https://api.openai.com/v1/images/variations";
 
-export async function generateVariation({ imagePath }) {
+export async function createVariation({ imagePath }) {
   try {
     const formData = new FormData();
     formData.append("image", fs.createReadStream(imagePath));
-    formData.append("n", "2"); // número de variações
+    formData.append("n", "2");
     formData.append("size", "1024x1024");
 
     const response = await axios.post(OPENAI_IMAGE_VARIATION_URL, formData, {
@@ -25,7 +25,7 @@ export async function generateVariation({ imagePath }) {
 
     return response.data;
   } catch (error) {
-    console.error("Erro ao gerar variação da imagem:", error.response?.data || error.message);
+    console.error("Erro ao criar variação de imagem:", error.response?.data || error.message);
     throw error;
   }
 }
