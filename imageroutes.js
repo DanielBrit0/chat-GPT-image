@@ -6,6 +6,19 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { v4 as uuidv4 } from "uuid";
 import { editImage, createVariation } from "./openaiservice.js"; // ⬅️ Importa também o createVariation
+import { getOpenAIUsage } from "./openaiservice.js";
+
+router.get("/usage", async (req, res) => {
+  const hoje = new Date().toISOString().split("T")[0];
+  const seteDiasAtras = new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0];
+
+  try {
+    const usage = await getOpenAIUsage(seteDiasAtras, hoje);
+    res.json(usage);
+  } catch (err) {
+    res.status(500).json({ erro: err.message });
+  }
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

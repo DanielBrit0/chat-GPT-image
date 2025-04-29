@@ -53,3 +53,17 @@ export async function createVariation({ imagePath }) {
     throw error;
   }
 }
+
+export async function getOpenAIUsage(startDate, endDate) {
+  const response = await fetch(`https://api.openai.com/v1/usage?start_date=${startDate}&end_date=${endDate}`, {
+    headers: {
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao buscar uso da API OpenAI");
+  }
+
+  return await response.json();
+}
