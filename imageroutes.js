@@ -8,6 +8,10 @@ import { v4 as uuidv4 } from "uuid";
 import { editImage, createVariation } from "./openaiservice.js"; // ⬅️ Importa também o createVariation
 import { getOpenAIUsage } from "./openaiservice.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const router = express.Router();
+
 router.get("/usage", async (req, res) => {
   const hoje = new Date().toISOString().split("T")[0];
   const seteDiasAtras = new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0];
@@ -19,11 +23,6 @@ router.get("/usage", async (req, res) => {
     res.status(500).json({ erro: err.message });
   }
 });
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const router = express.Router();
 
 // 🧠 Rota para quando a imagem vem em base64 (usado pelo Google Apps Script)
 router.post("/generate-variation", async (req, res) => {
